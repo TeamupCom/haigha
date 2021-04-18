@@ -16,11 +16,11 @@
         "issues": "https://github.com/linkorb/haigha/issues"
     },
     "require": {
-        "php": "^7.1",
-        "symfony/dotenv": "^3.4|^4.3|^5.0",
+        "php": "^7.1 || ^8",
+        "symfony/dotenv": "^5.0",
         "ramsey/uuid": "^2.0|^3.0",
-        "nelmio/alice": "^3.0",
-        "symfony/console": "^3.4|^4.3|^5.0",
+        "nelmio/alice": "^2.0",
+        "symfony/console": "^5.0",
         "linkorb/database-manager": "^2.0"
     },
     "require-dev": {
