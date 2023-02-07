@@ -5,6 +5,7 @@ namespace Haigha;
 use RuntimeException;
 use Exception;
 
+#[\AllowDynamicProperties]
 class TableRecord
 {
     // @codingStandardsIgnoreStart
