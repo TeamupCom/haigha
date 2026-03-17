@@ -4,18 +4,17 @@ namespace Haigha;
 
 use Nelmio\Alice\Instances\Instantiator\Methods\MethodInterface;
 use Nelmio\Alice\Fixtures\Fixture;
-use Haigha\TableRecord;
-use Rhumsaa\Uuid\Uuid;
+use Ramsey\Uuid\Uuid;
 
 class TableRecordInstantiator implements MethodInterface
 {
-    private $ids = array();
+    private $ids = [];
     private $auto_uuid_column = null;
 
     /**
      * Use this method to define a specific column to automatically receive a generated UUID.
      */
-    public function setAutoUuidColumn($colum_name)
+    public function setAutoUuidColumn($colum_name): void
     {
         $this->auto_uuid_column = $colum_name;
     }
@@ -23,11 +22,9 @@ class TableRecordInstantiator implements MethodInterface
     /**
     * {@inheritDoc}
     */
-    public function canInstantiate(Fixture $fixture)
+    public function canInstantiate(Fixture $fixture): bool
     {
-        if (substr($fixture->getClass(), 0, 6)=='table.') {
-            return true;
-        }
+        return 0 === strpos($fixture->getClass(), 'table.');
     }
 
     /**
@@ -39,7 +36,7 @@ class TableRecordInstantiator implements MethodInterface
         $r = new TableRecord($tablename);
 
         if ($this->auto_uuid_column) {
-            $uuid = (string)Uuid::uuid4();
+            $uuid = (string) Uuid::uuid4();
             $r->setR_uuid($uuid);
         }
 

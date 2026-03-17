@@ -2,21 +2,16 @@
 
 namespace Haigha\Persister;
 
-use LinkORB\Component\Database\Database;
 use Nelmio\Alice\PersisterInterface;
-use RuntimeException;
-use PDO;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class PdoPersister implements PersisterInterface
 {
-    private $pdo;
-    private $output;
-    private $dryRun;
+    private \PDO $pdo;
+    private OutputInterface $output;
+    private bool $dryRun;
 
-    /**
-     * @param PDO $pdo
-     */
-    public function __construct(PDO $pdo, $output, $dryRun = false)
+    public function __construct(\PDO $pdo, OutputInterface $output, bool $dryRun = false)
     {
         $this->pdo = $pdo;
         $this->output = $output;
@@ -36,25 +31,24 @@ class PdoPersister implements PersisterInterface
             }
             $truncated[] = $tablename;
 
-            $sql = sprintf("TRUNCATE `%s`", $tablename);
+            $sql = sprintf("TRUNCATE `$tablename`");
 
             if ($this->dryRun) {
-                $this->output->writeln(sprintf("Will be executed: %s", $sql));
+                $this->output->writeln("Will be executed: $sql");
                 continue;
             }
 
-            $this->output->writeln(sprintf("Executing: %s", $sql));
-            $statement = $this->pdo->prepare($sql);
-            $statement->execute();
+            $this->output->writeln("Executing: $sql");
+            $this->pdo->query($sql);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function persist(array $objects)
+    public function persist(array $objects): void
     {
-        $tasks = array();
+        $tasks = [];
         $count = 0;
 
         // collect all records
@@ -63,16 +57,16 @@ class PdoPersister implements PersisterInterface
             $fields = get_object_vars($object);
 
             if (!isset($tasks[$tablename])) {
-                $tasks[$tablename] = array(
+                $tasks[$tablename] = [
                     'fields' => $this->implodeFieldsNames($fields),
                     'rawfields' => $fields,
-                    'sql' => array(),
-                    'params' => array(),
-                );
+                    'sql' => [],
+                    'params' => [],
+                ];
             }
 
-            $sql = array();
-            $params = array();
+            $sql = [];
+            $params = [];
             // insert known fields in the right order
             foreach ($tasks[$tablename]['rawfields'] as $field => $dummy) {
                 if (isset($fields[$field])) {
@@ -128,7 +122,7 @@ class PdoPersister implements PersisterInterface
 
                 if (!$res) {
                     $err = $statement->errorInfo();
-                    throw new RuntimeException(sprintf(
+                    throw new \RuntimeException(sprintf(
                         "Error: '%s' on query '%s'",
                         $err[2],
                         $sql
@@ -147,25 +141,23 @@ class PdoPersister implements PersisterInterface
      */
     public function find($class, $id)
     {
-        throw new RuntimeException('find not implemented');
+        throw new \RuntimeException('find not implemented');
     }
 
-    /**
-     * @param  array $fields
-     * @return string
-     */
-    private function implodeFieldsNames($fields)
+    private function implodeFieldsNames(array $fields): string
     {
         $fields_names = array_keys($fields);
+
         return "`" . implode("`, `", $fields_names) . "`";
     }
 
-    public function getExpectedSqlQuery($sql, $fields)
+    public function getExpectedSqlQuery(string $sql, array $fields): string
     {
         foreach ($fields as $key=>$value) {
             $key = preg_quote($key);
             $sql = preg_replace("/:$key/", $value, $sql);
         }
+
         return $sql;
     }
 }
