@@ -16,15 +16,16 @@
         "issues": "https://github.com/linkorb/haigha/issues"
     },
     "require": {
-        "php": "^7.1 || ^8",
-        "symfony/dotenv": "^5.0||^6||^7",
-        "ramsey/uuid": "^3|^4",
-        "nelmio/alice": "^2.0",
-        "symfony/console": "^5.0||^6||^7",
-        "linkorb/database-manager": "^2.0"
+        "php": "^7.4 || ^8.4",
+        "ext-pdo": "*",
+        "linkorb/database-manager": "^2.0",
+        "nelmio/alice": "^2.3.6",
+        "ramsey/uuid": "^4.9",
+        "symfony/console": "^7.4 || ^8.0",
+        "symfony/dotenv": "^7.4 || ^8.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^5"
+        "phpunit/phpunit": "^12.5"
     },
     "bin": ["bin/haigha"],
     "autoload": {

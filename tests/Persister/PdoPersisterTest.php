@@ -4,6 +4,7 @@ namespace Haigha\Tests\Persister;
 
 use Haigha\Persister\PdoPersister;
 use Haigha\TableRecord;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
@@ -11,29 +12,26 @@ use Symfony\Component\Console\Output\BufferedOutput;
  *
  * @author Igor Mukhin <igor.mukhin@gmail.com>
  */
-class PdoPersisterTest extends \PHPUnit_Framework_TestCase
+class PdoPersisterTest extends TestCase
 {
-    private $persister;
-    private $output;
+    private PdoPersister $persister;
+    private BufferedOutput $output;
 
-    public function setUp()
+    protected function setUp(): void
     {
-        $pdo = $this->getMockBuilder('PDO')
-            ->disableOriginalConstructor()
-            ->getMock()
-        ;
+        $pdo = $this->createStub(\PDO::class);
         $this->output = new BufferedOutput();
         $this->persister = new PdoPersister($pdo, $this->output, true);
     }
 
-    public function testPersist()
+    public function testPersist(): void
     {
-        $records = array(
-            $this->makeRecord('table1', array('a' => 'foo')),
-            $this->makeRecord('table1', array('b' => 'bar')),
-            $this->makeRecord('table1', array('b' => 'baz', 'a' => 'qux')),
-            $this->makeRecord('table2', array('x' => 'y')),
-        );
+        $records = [
+            $this->makeRecord('table1', ['a' => 'foo']),
+            $this->makeRecord('table1', ['b' => 'bar']),
+            $this->makeRecord('table1', ['b' => 'baz', 'a' => 'qux']),
+            $this->makeRecord('table2', ['x' => 'y']),
+        ];
 
         $this->persister->persist($records);
         $expected = "Will be executed: INSERT INTO `table1` (`a`, `b`) VALUES (foo, DEFAULT),\n".
@@ -44,13 +42,13 @@ class PdoPersisterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $this->output->fetch());
     }
 
-    public function testReset()
+    public function testReset(): void
     {
-        $records = array(
-            $this->makeRecord('table1', array('a' => 'foo')),
-            $this->makeRecord('table1', array('b' => 'bar')),
-            $this->makeRecord('table2', array('x' => 'y')),
-        );
+        $records = [
+            $this->makeRecord('table1', ['a' => 'foo']),
+            $this->makeRecord('table1', ['b' => 'bar']),
+            $this->makeRecord('table2', ['x' => 'y']),
+        ];
 
         $this->persister->reset($records);
         $expected = "Will be executed: TRUNCATE `table1`\n".
@@ -59,7 +57,10 @@ class PdoPersisterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $this->output->fetch());
     }
 
-    private function makeRecord($table, $fields)
+    /**
+     * @param array<string, mixed> $fields
+     */
+    private function makeRecord(string $table, array $fields): TableRecord
     {
         $record = new TableRecord($table);
         foreach ($fields as $field => $val) {

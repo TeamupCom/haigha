@@ -12,16 +12,10 @@ use Nelmio\Alice\Fixtures\Loader as AliceLoader;
 use Haigha\TableRecordInstantiator;
 use Haigha\Persister\PdoPersister;
 use Haigha\Exception\FileNotFoundException;
-use Haigha\Exception\InvalidDatabaseException;
-use RuntimeException;
-use PDO;
 
 class LoadCommand extends Command
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('fixtures:load')
@@ -72,17 +66,14 @@ class LoadCommand extends Command
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $dburl = $input->getArgument('url');
         if (!$dburl) {
             $dburl = getenv('PDO');
         }
         if (!$dburl) {
-            throw new RuntimeException("Database URL unspecified. Either pass as an argument, or configure your PDO environment variable.");
+            throw new \RuntimeException('Database URL unspecified. Either pass as an argument, or configure your PDO environment variable.');
         }
         $filename  = $input->getArgument('filename');
         $autoUuidField  = $input->getArgument('autouuidfield');
@@ -125,5 +116,7 @@ class LoadCommand extends Command
         $persister->persist($objects);
 
         $output->writeln("Done");
+
+        return 0;
     }
 }
